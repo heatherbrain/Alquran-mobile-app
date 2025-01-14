@@ -20,32 +20,84 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
   }
 
   Future<void> loadLastReadAyat() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedData = prefs.getString('lastReadAyats');
-    setState(() {
-      lastReadData = storedData != null ? json.decode(storedData) : [];
-      isLoading = false;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedData = prefs.getString('lastReadAyats');
+      
+      if (storedData != null) {
+        // Decode the stored data
+        List<dynamic> decodedData = json.decode(storedData);
+        
+        // Create a map to store the most recent entry for each surah
+        Map<int, Map<String, dynamic>> filteredMap = {};
+        
+        // Iterate through the list in reverse order (most recent first)
+        for (var i = decodedData.length - 1; i >= 0; i--) {
+          var entry = decodedData[i];
+          int surahNumber = entry['surahNumber'] ?? 0;
+          
+          // Only add if we haven't seen this surah yet (keeping most recent)
+          if (!filteredMap.containsKey(surahNumber)) {
+            filteredMap[surahNumber] = entry;
+          }
+        }
+        
+        // Convert the filtered map back to a list
+        List<dynamic> filteredList = filteredMap.values.toList();
+        
+        // Sort the list by most recent first (assuming the original order represents time)
+        filteredList.sort((a, b) {
+          int indexA = decodedData.indexWhere((item) => 
+            item['surahNumber'] == a['surahNumber'] && 
+            item['ayatNumber'] == a['ayatNumber']);
+          int indexB = decodedData.indexWhere((item) => 
+            item['surahNumber'] == b['surahNumber'] && 
+            item['ayatNumber'] == b['ayatNumber']);
+          return indexB.compareTo(indexA);
+        });
+        
+        setState(() {
+          lastReadData = filteredList;
+          isLoading = false;
+        });
+
+        print('Loaded last read ayat: $lastReadData');
+        
+        // Save the filtered data back to SharedPreferences
+        await prefs.setString('lastReadAyats', json.encode(filteredList));
+      } else {
+        setState(() {
+          lastReadData = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        lastReadData = [];
+        isLoading = false;
+      });
+      print("Error loading last read ayat: $e");
+    }
   }
 
   Future<void> deleteAyat(int index) async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => lastReadData.removeAt(index));
+    setState(() {
+      lastReadData.removeAt(index);
+    });
     await prefs.setString('lastReadAyats', json.encode(lastReadData));
-    if (lastReadData.isEmpty) {
-      await prefs.remove('lastReadAyatNumber');
-      await prefs.remove('lastReadSurahName');
-      await prefs.remove('lastReadSurahNumber');
-    }
   }
 
   Future<void> navigateToSurahList(Map<String, dynamic> data) async {
+    final surahNumber = data['surahNumber'] ?? 1;
+    final lastReadAyat = data['ayatNumber'] ?? 1;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SurahListScreen(
-          surahId: data['surahNumber'],
-          // ayatNumber: data['ayatNumber'],
+          surahId: surahNumber,
+          lastReadAyat: lastReadAyat,
         ),
       ),
     );
@@ -76,7 +128,7 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
                   itemBuilder: (context, index) {
                     final data = lastReadData[index];
                     return Dismissible(
-                      key: Key(data['ayatNumber'].toString()),
+                      key: Key('${data['surahNumber']}_${data['ayatNumber']}'),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) => deleteAyat(index),
                       background: Container(
@@ -99,5 +151,3 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
     );
   }
 }
-
-

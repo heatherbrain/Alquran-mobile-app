@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 
 class DashboardButton extends StatelessWidget {
   final String image;
@@ -32,7 +34,7 @@ class DashboardButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
+            SvgPicture.asset(
               image, 
               width: 60, 
               height: 60, 

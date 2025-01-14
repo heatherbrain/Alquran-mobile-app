@@ -7,13 +7,13 @@ class PrayerTimesService {
 
   Future<Map<String, String>> getPrayerTimes() async {
     try {
-      print('Making API request to $apiUrl');
+      // print('Making API request to $apiUrl');
       final response = await http.get(Uri.parse(apiUrl));
-      print('API Response: ${response.body}'); 
+      // print('API Response: ${response.body}'); 
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Decoded data: $data');
+        // print('Decoded data: $data');
         
         Map<String, String> prayerTimes = {
           'Fajr': data['data']['timings']['Fajr'],
@@ -23,13 +23,13 @@ class PrayerTimesService {
           'Isha': data['data']['timings']['Isha'],
         };
         
-        print('Prayer Times: $prayerTimes'); 
+        // print('Prayer Times: $prayerTimes'); 
         return prayerTimes;
       } else {
         throw Exception('Failed to load prayer times');
       }
     } catch (e) {
-      print('Error: $e'); 
+      // print('Error: $e'); 
       throw Exception('Error fetching prayer times');
     }
   }

@@ -58,12 +58,14 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> navigateToSurahList(Map<String, dynamic> data) async {
-    final surahNumber = data['nomor'] ?? 0; // Gunakan nilai default jika null
+    final surahNumber = data['nomor'] ?? 0; 
+    final lastReadAyat = data['lastReadAyat'] ?? 0;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SurahListScreen(
           surahId: surahNumber,
+          lastReadAyat: lastReadAyat,
         ),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'surah_detail_screen.dart';
 
 class SurahScreen extends StatefulWidget {
   @override
@@ -134,12 +133,13 @@ class _SurahScreenState extends State<SurahScreen> {
                         onTap: () {
                           final surahId = surah[
                               'nomor'];
-
+                          final lastReadAyat = surah['lastReadAyat'] ?? 0;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SurahListScreen(
                                 surahId: surahId, 
+                                lastReadAyat: lastReadAyat,
                               ),
                             ),
                           );

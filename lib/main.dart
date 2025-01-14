@@ -1,5 +1,4 @@
 import 'package:alquran_app/screens/dashboard_screen.dart';
-import 'package:alquran_app/screens/surah_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

@@ -17,12 +17,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    print('Initializing PrayerTimesService...');
     prayerTimes = PrayerTimesService().getPrayerTimes();
     prayerTimes.then((data) {
-      print('Received Prayer Times: $data');
     }).catchError((e) {
-      print('Error while fetching prayer times: $e');
     });
   }
 
@@ -63,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisSpacing: 16,
                 children: [
                   DashboardButton(
-                    image: 'assets/images/alqur\'an.png',
+                    image: 'assets/svg/alqur\'an.svg',
                     label: 'Baca Qur\'an',
                     onTap: () {
                       Navigator.push(
@@ -78,7 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   DashboardButton(
-                    image: 'assets/images/bookmark.png',
+                    image: 'assets/svg/bookmark.svg',
                     label: 'Terakhir Baca',
                     onTap: () {
                       Navigator.push(
@@ -93,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   DashboardButton(
-                    image: 'assets/images/search.png',
+                    image: 'assets/svg/search.svg',
                     label: 'Pencarian',
                     onTap: () {
                       Navigator.push(
@@ -108,7 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   DashboardButton(
-                    image: 'assets/images/setting.png',
+                    image: 'assets/svg/setting.svg',
                     label: 'Pengaturan',
                     onTap: () {
                       Navigator.push(context, PageRouteBuilder(pageBuilder:
@@ -133,7 +130,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Text(
           '$currentTime',
-          style: TextStyle(fontSize: 70, color: Colors.white),
+          style: TextStyle(fontSize: 70, color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ],
     );
