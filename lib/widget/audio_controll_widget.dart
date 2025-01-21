@@ -24,8 +24,7 @@ class _AudioControlWidgetState extends State<AudioControlWidget> {
   String? currentAudioUrl;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
-  bool isInitialized = false;  // Track if audio is initialized
-
+  bool isInitialized = false;  
   @override
   void initState() {
     super.initState();
@@ -78,13 +77,11 @@ class _AudioControlWidgetState extends State<AudioControlWidget> {
       final formattedNumber = _formatSurahNumber(surahNumber);
       final url = 'https://santrikoding.com/storage/audio/$formattedNumber.mp3';
 
-      // If same audio, just toggle play/pause
       if (currentAudioUrl == url && isInitialized) {
         await _togglePlayPause();
         return;
       }
 
-      // Load new audio
       setState(() {
         isLoadingAudio = true;
         isPlaying = false;
@@ -94,7 +91,7 @@ class _AudioControlWidgetState extends State<AudioControlWidget> {
 
       try {
         await _audioPlayer.setUrl(url).timeout(
-          const Duration(seconds: 10),
+          const Duration(seconds: 5),
           onTimeout: () {
             throw TimeoutException('Loading audio timed out');
           },
@@ -103,8 +100,8 @@ class _AudioControlWidgetState extends State<AudioControlWidget> {
         setState(() {
           isLoadingAudio = false;
           currentAudioUrl = url;
-          isInitialized = true;  // Mark as initialized after successful load
-          isPlaying = true;      // Set to playing state
+          isInitialized = true;  
+          isPlaying = true;      
         });
 
         await _audioPlayer.play();
@@ -112,7 +109,7 @@ class _AudioControlWidgetState extends State<AudioControlWidget> {
       } catch (e) {
         setState(() {
           isLoadingAudio = false;
-          isInitialized = false;  // Reset initialization on error
+          isInitialized = false;  
         });
         throw e;
       }

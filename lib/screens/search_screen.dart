@@ -1,4 +1,3 @@
-import 'package:alquran_app/screens/surah_detail_screen.dart';
 import 'package:alquran_app/screens/surah_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -38,7 +37,6 @@ class _SearchScreenState extends State<SearchScreen> {
         throw Exception('Failed to load surah list');
       }
     } catch (error) {
-      print('Error: $error');
       setState(() {
         isLoading = false;
       });
@@ -84,12 +82,12 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pencarian Surah'),
-        backgroundColor: Color(0xFFE6F1F3),
+        title:const  Text('Pencarian Surah'),
+        backgroundColor:const  Color(0xFFE6F1F3),
       ),
       backgroundColor: Colors.white,
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF819BA0)),
               ),
@@ -101,15 +99,15 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: TextField(
                     onChanged: updateSearchQuery,
                     decoration: InputDecoration(
-                      hintText: 'Cari berdasarkan nama atau arti surah', // Ubah hint text
+                      hintText: 'Cari berdasarkan nama atau arti surah', 
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF819BA0), width: 2.0),
+                        borderSide: const BorderSide(color: Color(0xFF819BA0), width: 2.0),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      prefixIcon: Icon(Icons.search, color: const Color.fromARGB(255, 44, 75, 101)),
+                      prefixIcon: const Icon(Icons.search, color: Color.fromARGB(255, 44, 75, 101)),
                     ),
                   ),
                 ),
@@ -118,7 +116,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemCount: filteredSurahData.length,
                     itemBuilder: (context, index) {
                       final surah = filteredSurahData[index];
-                      final surahNumber = surah['nomor'] ?? 0;
                       final ayatCount = surah['jumlah_ayat'] ?? 0;
                       return ListTile(
                         title: Text(surah['nama_latin'] ?? 'Nama tidak tersedia'),
