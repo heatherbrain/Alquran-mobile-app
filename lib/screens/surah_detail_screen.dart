@@ -1,3 +1,5 @@
+import 'package:alquran_app/screens/surah_list_screen.dart';
+import 'package:alquran_app/widget/audio_controll_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -10,12 +12,13 @@ class SurahDetailScreen extends StatefulWidget {
   final int? ayatNumber;
   final int? lastReadAyat;
 
-  SurahDetailScreen({
+  const SurahDetailScreen({
+    Key? key,
     required this.surahName,
     required this.surahNumber,
-    required this.ayatNumber,
+    this.ayatNumber,
     this.lastReadAyat,
-  });
+  }) : super(key: key);
 
   @override
   _SurahDetailScreenState createState() => _SurahDetailScreenState();
@@ -26,11 +29,10 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   List<dynamic> ayats = [];
   int? lastReadAyatNumber;
   late ScrollController _scrollController;
-  bool isDataInitialized = false;
 
   double fontSize = 16.0;
   String fontStyleLatin = 'Amiri';
-  String fontStyleArti = 'Amiri';
+  String fontStyleArti = 'Lato';
   bool isTajwidEnabled = true;
 
   @override
@@ -50,60 +52,48 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 
       if (!mounted) return;
 
-      setState(() {
-        isDataInitialized = true;
-      });
+      setState(() => isLoading = false);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.lastReadAyat != null && widget.lastReadAyat! > 0) {
-        scrollToAyat(widget.lastReadAyat!);
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.lastReadAyat != null && widget.lastReadAyat! > 0) {
+          scrollToAyat(widget.lastReadAyat!);
+        }
       });
     } catch (e) {
       print("Error initializing data: $e");
+      setState(() => isLoading = false);
     }
   }
 
   void scrollToAyat(int ayatNumber) {
-    try {
-       if (ayatNumber <= 0 || ayatNumber > ayats.length) return;
-    
     final targetIndex = ayats.indexWhere((ayat) => ayat['nomor'] == ayatNumber);
-    if (targetIndex == -1) return;
-
-    final double targetOffset = targetIndex * 155.5;
-    _scrollController.animateTo(
-      targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
-    } catch (e) {
-      print("Error scrolling to ayat: $e");
+    if (targetIndex != -1) {
+      final double targetOffset = targetIndex * 155.0;
+      _scrollController.animateTo(
+        targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
   Future<void> fetchSurahDetail() async {
     try {
       final response = await http.get(
-        Uri.parse('https://quran-api.santrikoding.com/api/surah/${widget.surahNumber}'),
+        Uri.parse(
+            'https://quran-api.santrikoding.com/api/surah/${widget.surahNumber}'),
       );
-
-      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          ayats = data['ayat'] ?? [];
-          isLoading = false;
-        });
+        setState(() => ayats = data['ayat'] ?? []);
       } else {
-        throw Exception('Failed to load surah detail');
+        throw Exception('Failed to load surah details.');
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
       print("Error fetching surah detail: $e");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -113,13 +103,9 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       final savedAyat = prefs.getInt('lastReadAyatNumber');
       final savedSurah = prefs.getInt('lastReadSurah');
 
-      if (!mounted) return;
-
-      setState(() {
-        if (savedSurah == widget.surahNumber) {
-          lastReadAyatNumber = savedAyat;
-        }
-      });
+      if (savedSurah == widget.surahNumber) {
+        setState(() => lastReadAyatNumber = savedAyat);
+      }
     } catch (e) {
       print("Error loading last read ayat: $e");
     }
@@ -135,7 +121,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       List<dynamic> lastReadAyats =
           storedData != null ? json.decode(storedData) : [];
 
-      lastReadAyats.removeWhere((entry) => entry['surahNumber'] == widget.surahNumber);
+      lastReadAyats
+          .removeWhere((entry) => entry['surahNumber'] == widget.surahNumber);
       lastReadAyats.insert(0, {
         'surahNumber': widget.surahNumber,
         'surahName': widget.surahName,
@@ -149,9 +136,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 
       await prefs.setString('lastReadAyats', json.encode(lastReadAyats));
 
-      if (mounted) {
-        setState(() => lastReadAyatNumber = ayatNumber);
-      }
+      setState(() => lastReadAyatNumber = ayatNumber);
     } catch (e) {
       print("Error saving last read ayat: $e");
     }
@@ -160,26 +145,15 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   Future<void> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-
-      if (!mounted) return;
-
       setState(() {
         fontSize = prefs.getDouble('fontSize') ?? 16.0;
         fontStyleLatin = prefs.getString('fontStyleLatin') ?? 'Amiri';
         fontStyleArti = prefs.getString('fontStyleArti') ?? 'Lato';
         isTajwidEnabled = prefs.getBool('isTajwidEnabled') ?? true;
-
-        fontStyleLatin = validateFont(fontStyleLatin, defaultFont: 'Amiri');
-        fontStyleArti = validateFont(fontStyleArti, defaultFont: 'Lato');
       });
     } catch (e) {
       print("Error loading settings: $e");
     }
-  }
-
-  String validateFont(String fontName, {required String defaultFont}) {
-    const validFonts = ['Amiri', 'Lato', 'Roboto', 'NotoSans', 'Raleway'];
-    return validFonts.contains(fontName) ? fontName : defaultFont;
   }
 
   String removeHtmlTags(String input) {
@@ -190,9 +164,21 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 
   Border? getAyatBorder(int ayatNumber) {
     if (lastReadAyatNumber == ayatNumber || widget.lastReadAyat == ayatNumber) {
-      return Border.all(color: Color.fromARGB(255, 103, 154, 170), width: 3.0);
+      return Border.all(color: const Color(0xFF679AAA), width: 3.0);
     }
     return null;
+  }
+
+  void _handleSurahChange(int newSurahNumber, {int? lastReadAyat}) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SurahListScreen(
+          surahId: newSurahNumber,
+          lastReadAyat: lastReadAyat ?? 0,
+        ),
+      ),
+    );
   }
 
   @override
@@ -200,7 +186,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF819BA0)),
               ),
@@ -211,7 +197,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               itemBuilder: (context, index) {
                 final ayat = ayats[index];
                 final backgroundColor =
-                    index % 2 == 0 ? Color(0xFFE6F1F3) : Colors.white;
+                    index % 2 == 0 ? const Color(0xFFE6F1F3) : Colors.white;
 
                 return GestureDetector(
                   onLongPress: () async {
@@ -221,12 +207,12 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                         content: Text(
                           'Ayat ${ayat['nomor']} pada surah ${widget.surahName} disimpan sebagai terakhir baca.',
                         ),
-                        duration: Duration(seconds: 2),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: backgroundColor,
                       border: getAyatBorder(ayat['nomor']),
@@ -250,7 +236,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                                 Center(
                                   child: Text(
                                     ayat['nomor'].toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -272,7 +258,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           removeHtmlTags(
                               ayat['tr'] ?? 'Transliterasi tidak tersedia'),
@@ -284,7 +270,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                             fontStyle: FontStyle.italic,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           ayat['idn'] ?? 'Terjemahan tidak tersedia',
                           style: GoogleFonts.getFont(
@@ -299,6 +285,13 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 );
               },
             ),
+      floatingActionButton: AudioControlWidget(
+        surahNumber: widget.surahNumber,
+        onSurahChange: (int newSurahNumber) {
+          _handleSurahChange(newSurahNumber, lastReadAyat: lastReadAyatNumber);
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -308,4 +301,3 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     super.dispose();
   }
 }
- 

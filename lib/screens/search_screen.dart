@@ -51,8 +51,17 @@ class _SearchScreenState extends State<SearchScreen> {
       filteredSurahData = allSurahData.where((surah) {
         final surahName = surah['nama_latin']?.toLowerCase() ?? '';
         final arabicName = surah['nama']?.toLowerCase() ?? '';
+        final artiSurah = surah['arti']?.toLowerCase() ?? ''; 
+          // final artiAyat = (surah['ayat'] as List<dynamic>?) // Periksa arti ayat jika tersedia
+          //     ?.map((ayat) => ayat['arti']?.toLowerCase() ?? '')
+          //     .join(' ') ??
+          // '';
         final searchQuery = newQuery.toLowerCase();
-        return surahName.contains(searchQuery) || arabicName.contains(searchQuery);
+        
+        return surahName.contains(searchQuery) || 
+               arabicName.contains(searchQuery) ||
+               artiSurah.contains(searchQuery);
+          // artiAyat.contains(searchQuery);
       }).toList();
     });
   }
@@ -92,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: TextField(
                     onChanged: updateSearchQuery,
                     decoration: InputDecoration(
-                      hintText: 'Cari surah berdasarkan nama',
+                      hintText: 'Cari berdasarkan nama atau arti surah', // Ubah hint text
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -113,7 +122,17 @@ class _SearchScreenState extends State<SearchScreen> {
                       final ayatCount = surah['jumlah_ayat'] ?? 0;
                       return ListTile(
                         title: Text(surah['nama_latin'] ?? 'Nama tidak tersedia'),
-                        subtitle: Text(surah['nama'] ?? ''),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(surah['nama'] ?? ''),
+                            Text(surah['arti'] ?? '', // Tambah tampilan arti
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                )),
+                          ],
+                        ),
                         trailing: Text('Ayat: $ayatCount'),
                         onTap: () {
                           navigateToSurahList(surah);

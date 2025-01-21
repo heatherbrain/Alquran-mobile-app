@@ -25,27 +25,21 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
       final storedData = prefs.getString('lastReadAyats');
       
       if (storedData != null) {
-        // Decode the stored data
         List<dynamic> decodedData = json.decode(storedData);
         
-        // Create a map to store the most recent entry for each surah
         Map<int, Map<String, dynamic>> filteredMap = {};
         
-        // Iterate through the list in reverse order (most recent first)
         for (var i = decodedData.length - 1; i >= 0; i--) {
           var entry = decodedData[i];
           int surahNumber = entry['surahNumber'] ?? 0;
           
-          // Only add if we haven't seen this surah yet (keeping most recent)
           if (!filteredMap.containsKey(surahNumber)) {
             filteredMap[surahNumber] = entry;
           }
         }
         
-        // Convert the filtered map back to a list
         List<dynamic> filteredList = filteredMap.values.toList();
         
-        // Sort the list by most recent first (assuming the original order represents time)
         filteredList.sort((a, b) {
           int indexA = decodedData.indexWhere((item) => 
             item['surahNumber'] == a['surahNumber'] && 
@@ -63,7 +57,6 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
 
         print('Loaded last read ayat: $lastReadData');
         
-        // Save the filtered data back to SharedPreferences
         await prefs.setString('lastReadAyats', json.encode(filteredList));
       } else {
         setState(() {

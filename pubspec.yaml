@@ -16,6 +16,8 @@ dependencies:
   smooth_page_indicator: ^1.2.0+3
   shared_preferences: ^2.3.3
   flutter_svg: ^2.0.16
+  audioplayers: ^6.1.0
+  just_audio: ^0.9.43
 
 dev_dependencies:
   flutter_test:
