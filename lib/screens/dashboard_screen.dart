@@ -1,3 +1,4 @@
+import 'dart:async'; // Tambahkan import ini untuk Timer
 import 'package:alquran_app/prayers_time_service.dart';
 import 'package:alquran_app/screens/pengaturan_screen.dart';
 import 'package:alquran_app/screens/search_screen.dart';
@@ -13,14 +14,31 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late Future<Map<String, String>?> prayerTimes;
+  late Timer _timer;
+  String _currentTime = '';
 
   @override
   void initState() {
     super.initState();
     prayerTimes = PrayerTimesService().getPrayerTimes();
-    prayerTimes.then((data) {
-    }).catchError((e) {
+
+    _currentTime = _getCurrentTime();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        _currentTime = _getCurrentTime();
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _getCurrentTime() {
+    return DateTime.now().toLocal().toString().substring(11, 16);
   }
 
   @override
@@ -124,13 +142,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildCurrentTimeWidget() {
-    String currentTime = DateTime.now().toLocal().toString().substring(11, 16);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '$currentTime',
-          style: TextStyle(fontSize: 70, color: Colors.white, fontWeight: FontWeight.bold),
+          _currentTime, 
+          style: const TextStyle(
+            fontSize: 70,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
