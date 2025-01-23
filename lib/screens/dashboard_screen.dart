@@ -148,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Text(
           _currentTime, 
           style: const TextStyle(
-            fontSize: 70,
+            fontSize: 72,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
