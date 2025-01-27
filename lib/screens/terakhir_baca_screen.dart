@@ -103,6 +103,7 @@ class _TerakhirBacaScreenState extends State<TerakhirBacaScreen> {
         title: Text('Terakhir Dibaca'),
         backgroundColor: Color(0xFF819BA0),
       ),
+      backgroundColor: Colors.white,
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(

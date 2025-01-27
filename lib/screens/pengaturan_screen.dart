@@ -25,10 +25,10 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
       fontSize = prefs.getDouble('fontSize') ?? 16.0;
       fontStyleLatin = fontStyles.contains(prefs.getString('fontStyleLatin'))
           ? prefs.getString('fontStyleLatin')!
-          : 'Amiri'; 
+          : 'Amiri';
       fontStyleArti = fontStyles.contains(prefs.getString('fontStyleArti'))
           ? prefs.getString('fontStyleArti')!
-          : 'Lato'; 
+          : 'Lato';
     });
   }
 
@@ -45,8 +45,10 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFFE6F1F3),
         title: Text('Pengaturan'),
       ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
@@ -72,7 +74,8 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
             ListTile(
               title: Text('Gaya Font Latin'),
               subtitle: DropdownButton<String>(
-                value: fontStyles.contains(fontStyleLatin) ? fontStyleLatin : null,
+                value:
+                    fontStyles.contains(fontStyleLatin) ? fontStyleLatin : null,
                 isExpanded: true,
                 items: fontStyles.map((style) {
                   return DropdownMenuItem(
@@ -92,7 +95,8 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
             ListTile(
               title: Text('Gaya Font Arti'),
               subtitle: DropdownButton<String>(
-                value: fontStyles.contains(fontStyleArti) ? fontStyleArti : null,
+                value:
+                    fontStyles.contains(fontStyleArti) ? fontStyleArti : null,
                 isExpanded: true,
                 items: fontStyles.map((style) {
                   return DropdownMenuItem(
